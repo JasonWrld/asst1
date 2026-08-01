@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600" role="img" aria-labelledby="title description">
+<title id="title">Mandelbrot View 1 speedup by thread count</title>
+<desc id="description">Measured block-decomposition speedup on a four-P-core, eight-SMT-context myth4 simulation, compared with ideal linear speedup.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="450" y="34" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="700">Program 1 Task 2 — View 1 Speedup</text>
+<line x1="90" y1="520.00" x2="865" y2="520.00" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="525.00" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">0</text>
+<line x1="90" y1="466.47" x2="865" y2="466.47" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="471.47" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">1</text>
+<line x1="90" y1="412.94" x2="865" y2="412.94" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="417.94" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">2</text>
+<line x1="90" y1="359.41" x2="865" y2="359.41" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="364.41" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">3</text>
+<line x1="90" y1="305.88" x2="865" y2="305.88" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="310.88" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">4</text>
+<line x1="90" y1="252.35" x2="865" y2="252.35" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="257.35" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">5</text>
+<line x1="90" y1="198.82" x2="865" y2="198.82" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="203.82" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">6</text>
+<line x1="90" y1="145.29" x2="865" y2="145.29" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="150.29" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">7</text>
+<line x1="90" y1="91.76" x2="865" y2="91.76" stroke="#d9dee7" stroke-width="1"/>
+<text x="78" y="96.76" text-anchor="end" font-family="sans-serif" font-size="14" fill="#303642">8</text>
+<line x1="90.00" y1="65" x2="90.00" y2="520" stroke="#edf0f5" stroke-width="1"/>
+<text x="90.00" y="548" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#303642">2</text>
+<line x1="219.17" y1="65" x2="219.17" y2="520" stroke="#edf0f5" stroke-width="1"/>
+<text x="219.17" y="548" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#303642">3</text>
+<line x1="348.33" y1="65" x2="348.33" y2="520" stroke="#edf0f5" stroke-width="1"/>
+<text x="348.33" y="548" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#303642">4</text>
+<line x1="477.50" y1="65" x2="477.50" y2="520" stroke="#edf0f5" stroke-width="1"/>
+<text x="477.50" y="548" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#303642">5</text>
+<line x1="606.67" y1="65" x2="606.67" y2="520" stroke="#edf0f5" stroke-width="1"/>
+<text x="606.67" y="548" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#303642">6</text>
+<line x1="735.83" y1="65" x2="735.83" y2="520" stroke="#edf0f5" stroke-width="1"/>
+<text x="735.83" y="548" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#303642">7</text>
+<line x1="865.00" y1="65" x2="865.00" y2="520" stroke="#edf0f5" stroke-width="1"/>
+<text x="865.00" y="548" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#303642">8</text>
+<line x1="90" y1="65" x2="90" y2="520" stroke="#1f2937" stroke-width="2"/>
+<line x1="90" y1="520" x2="865" y2="520" stroke="#1f2937" stroke-width="2"/>
+<polyline points="90.00,412.94 219.17,359.41 348.33,305.88 477.50,252.35 606.67,198.82 735.83,145.29 865.00,91.76" fill="none" stroke="#8b95a5" stroke-width="3" stroke-dasharray="9 7"/>
+<polyline points="90.00,414.21 219.17,433.60 348.33,381.27 477.50,385.00 606.67,343.71 735.83,338.43 865.00,313.53" fill="none" stroke="#1769aa" stroke-width="4" stroke-linejoin="round"/>
+<circle cx="90.00" cy="414.21" r="6" fill="#1769aa" stroke="#ffffff" stroke-width="2"/>
+<text x="90.00" y="402.21" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#124f80">1.98x</text>
+<circle cx="219.17" cy="433.60" r="6" fill="#1769aa" stroke="#ffffff" stroke-width="2"/>
+<text x="219.17" y="421.60" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#124f80">1.61x</text>
+<circle cx="348.33" cy="381.27" r="6" fill="#1769aa" stroke="#ffffff" stroke-width="2"/>
+<text x="348.33" y="369.27" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#124f80">2.59x</text>
+<circle cx="477.50" cy="385.00" r="6" fill="#1769aa" stroke="#ffffff" stroke-width="2"/>
+<text x="477.50" y="373.00" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#124f80">2.52x</text>
+<circle cx="606.67" cy="343.71" r="6" fill="#1769aa" stroke="#ffffff" stroke-width="2"/>
+<text x="606.67" y="331.71" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#124f80">3.29x</text>
+<circle cx="735.83" cy="338.43" r="6" fill="#1769aa" stroke="#ffffff" stroke-width="2"/>
+<text x="735.83" y="326.43" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#124f80">3.39x</text>
+<circle cx="865.00" cy="313.53" r="6" fill="#1769aa" stroke="#ffffff" stroke-width="2"/>
+<text x="865.00" y="301.53" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#124f80">3.86x</text>
+<text x="477.50" y="580" text-anchor="middle" font-family="sans-serif" font-size="17">Number of threads</text>
+<text x="24" y="292.50" text-anchor="middle" font-family="sans-serif" font-size="17" transform="rotate(-90 24 292.50)">Speedup over serial</text>
+<line x1="610" y1="54" x2="650" y2="54" stroke="#1769aa" stroke-width="4"/>
+<text x="660" y="59" font-family="sans-serif" font-size="14">Measured</text>
+<line x1="610" y1="78" x2="650" y2="78" stroke="#8b95a5" stroke-width="3" stroke-dasharray="9 7"/>
+<text x="660" y="83" font-family="sans-serif" font-size="14">Ideal linear</text>
+</svg>
