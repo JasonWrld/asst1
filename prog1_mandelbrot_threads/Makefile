@@ -20,7 +20,7 @@ dirs:
 clean:
 		/bin/rm -rf $(OBJDIR) *.ppm *~ $(APP_NAME)
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/mandelbrotSerial.o $(OBJDIR)/mandelbrotThread.o $(PPM_OBJ)
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/mandelbrotSerial.o $(OBJDIR)/mandelbrotThread.o $(OBJDIR)/ThreadAffinity.o $(PPM_OBJ)
 
 $(APP_NAME): dirs $(OBJS)
 		$(CXX) $(CXXFLAGS) -o $@ $(OBJS) -lm -lpthread
@@ -32,4 +32,4 @@ $(OBJDIR)/%.o: $(COMMONDIR)/%.cpp
 	$(CXX) $< $(CXXFLAGS) -c -o $@
 
 $(OBJDIR)/main.o: $(COMMONDIR)/CycleTimer.h
-
+$(OBJDIR)/main.o $(OBJDIR)/mandelbrotThread.o $(OBJDIR)/ThreadAffinity.o: ThreadAffinity.h

@@ -1,7 +1,10 @@
 #include <stdio.h>
+#include <cstdlib>
+#include <string>
 #include <thread>
 
 #include "CycleTimer.h"
+#include "ThreadAffinity.h"
 
 typedef struct {
     float x0, x1;
@@ -12,6 +15,8 @@ typedef struct {
     int* output;
     int threadId;
     int numThreads;
+    const ThreadAffinityTarget* affinityTarget;
+    std::string* affinityError;
 } WorkerArgs;
 
 
@@ -28,14 +33,32 @@ extern void mandelbrotSerial(
 //
 // Thread entrypoint.
 void workerThreadStart(WorkerArgs * const args) {
+    ThreadAffinityState affinityState;
+    if (args->affinityTarget != nullptr &&
+        !bindCurrentThread(
+            *args->affinityTarget, affinityState, *args->affinityError)) {
+        return;
+    }
 
-    // TODO FOR CS149 STUDENTS: Implement the body of the worker
-    // thread here. Each thread should make a call to mandelbrotSerial()
-    // to compute a part of the output image.  For example, in a
-    // program that uses two threads, thread 0 could compute the top
-    // half of the image and thread 1 could compute the bottom half.
+    const int rowsPerThread = args->height / args->numThreads;
+    const int startRow = args->threadId * rowsPerThread;
+    const int numRows = (args->threadId == args->numThreads - 1)
+        ? args->height - startRow
+        : rowsPerThread;
 
-    printf("Hello world from thread %d\n", args->threadId);
+    mandelbrotSerial(
+        args->x0, args->y0, args->x1, args->y1,
+        args->width, args->height,
+        startRow, numRows,
+        args->maxIterations,
+        args->output);
+
+    if (args->affinityTarget != nullptr) {
+        std::string restoreError;
+        if (!restoreCurrentThreadAffinity(affinityState, restoreError)) {
+            *args->affinityError = restoreError;
+        }
+    }
 }
 
 //
@@ -43,23 +66,33 @@ void workerThreadStart(WorkerArgs * const args) {
 //
 // Multi-threaded implementation of mandelbrot set image generation.
 // Threads of execution are created by spawning std::threads.
-void mandelbrotThread(
+bool mandelbrotThread(
     int numThreads,
     float x0, float y0, float x1, float y1,
     int width, int height,
-    int maxIterations, int output[])
+    int maxIterations, int output[],
+    const ThreadAffinityPlan* affinityPlan,
+    std::string& error)
 {
     static constexpr int MAX_THREADS = 32;
 
-    if (numThreads > MAX_THREADS)
+    error.clear();
+
+    if (numThreads < 1 || numThreads > MAX_THREADS)
     {
-        fprintf(stderr, "Error: Max allowed threads is %d\n", MAX_THREADS);
-        exit(1);
+        error = "Thread count must be between 1 and 32.";
+        return false;
+    }
+    if (affinityPlan != nullptr &&
+        affinityPlan->targets.size() != static_cast<std::size_t>(numThreads)) {
+        error = "Affinity plan does not contain exactly one target per thread.";
+        return false;
     }
 
     // Creates thread objects that do not yet represent a thread.
     std::thread workers[MAX_THREADS];
     WorkerArgs args[MAX_THREADS];
+    std::string affinityErrors[MAX_THREADS];
 
     for (int i=0; i<numThreads; i++) {
       
@@ -77,6 +110,10 @@ void mandelbrotThread(
         args[i].output = output;
       
         args[i].threadId = i;
+        args[i].affinityTarget = affinityPlan == nullptr
+            ? nullptr
+            : &affinityPlan->targets[static_cast<std::size_t>(i)];
+        args[i].affinityError = &affinityErrors[i];
     }
 
     // Spawn the worker threads.  Note that only numThreads-1 std::threads
@@ -92,5 +129,12 @@ void mandelbrotThread(
     for (int i=1; i<numThreads; i++) {
         workers[i].join();
     }
-}
 
+    for (int i = 0; i < numThreads; ++i) {
+        if (!affinityErrors[i].empty()) {
+            error = "Worker " + std::to_string(i) + ": " + affinityErrors[i];
+            return false;
+        }
+    }
+    return true;
+}
