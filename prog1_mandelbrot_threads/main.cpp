@@ -6,6 +6,7 @@
 #include <cstring>
 #include <limits>
 #include <string>
+#include <vector>
 
 #include "CycleTimer.h"
 #include "ThreadAffinity.h"
@@ -51,6 +52,7 @@ void usage(const char* progname) {
     printf("  -t  --threads <N>  Use N threads\n");
     printf("  -v  --view <INT>   Use specified view settings\n");
     printf("      --pin-p-cores  Pin each worker to a distinct Windows P-core\n");
+    printf("      --simulate-myth4  Restrict execution to 4 Windows P-cores/8 SMT contexts\n");
     printf("  -?  --help         This message\n");
 }
 
@@ -86,6 +88,27 @@ bool verifyResult(int* gold, int* result, int width, int height) {
     return true;
 }
 
+class ScopedProcessCpuSetRestriction {
+public:
+    ~ScopedProcessCpuSetRestriction() {
+        std::string ignored;
+        restore(ignored);
+    }
+
+    bool apply(
+        const std::vector<ThreadAffinityTarget>& logicalProcessors,
+        std::string& error) {
+        return applyProcessCpuSetRestriction(logicalProcessors, state_, error);
+    }
+
+    bool restore(std::string& error) {
+        return restoreProcessCpuSetRestriction(state_, error);
+    }
+
+private:
+    ProcessCpuSetState state_;
+};
+
 int main(int argc, char** argv) {
     const unsigned int width = 1600;
     const unsigned int height = 1200;
@@ -93,6 +116,7 @@ int main(int argc, char** argv) {
     int numThreads = 2;
     int viewIndex = 1;
     bool pinPerformanceCores = false;
+    bool simulateMyth4 = false;
 
     float x0 = -2;
     float x1 = 1;
@@ -109,6 +133,8 @@ int main(int argc, char** argv) {
             return 0;
         } else if (argument == "--pin-p-cores") {
             pinPerformanceCores = true;
+        } else if (argument == "--simulate-myth4") {
+            simulateMyth4 = true;
         } else if (argument == "-t" || argument == "--threads") {
             if (++i >= argc) {
                 fprintf(stderr, "Missing value for %s\n", argument.c_str());
@@ -152,6 +178,11 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Thread count must be between 1 and 32\n");
         return 1;
     }
+    if (pinPerformanceCores && simulateMyth4) {
+        fprintf(stderr,
+                "--pin-p-cores and --simulate-myth4 cannot be used together\n");
+        return 1;
+    }
     if (viewIndex == 2) {
         scaleAndShift(x0, x1, y0, y1, .015f, -.986f, .30f);
     } else if (viewIndex != 1) {
@@ -161,6 +192,7 @@ int main(int argc, char** argv) {
 
     ThreadAffinityPlan affinityPlan;
     const ThreadAffinityPlan* selectedAffinityPlan = nullptr;
+    ScopedProcessCpuSetRestriction processCpuSetRestriction;
     if (pinPerformanceCores) {
         std::string affinityError;
         if (!buildPerformanceCorePlan(numThreads, affinityPlan, affinityError)) {
@@ -170,10 +202,43 @@ int main(int argc, char** argv) {
         }
         printThreadAffinityPlan(affinityPlan);
         selectedAffinityPlan = &affinityPlan;
+    } else if (simulateMyth4) {
+        std::string affinityError;
+        if (!buildMyth4AffinityPlan(
+                numThreads, affinityPlan, affinityError)) {
+            fprintf(stderr, "Unable to prepare myth4 affinity: %s\n",
+                    affinityError.c_str());
+            return 1;
+        }
+        printMyth4AffinityPlan(affinityPlan);
+        if (!processCpuSetRestriction.apply(
+                affinityPlan.logicalProcessors, affinityError)) {
+            fprintf(stderr, "Unable to apply myth4 CPU Set restriction: %s\n",
+                    affinityError.c_str());
+            return 1;
+        }
+        if (!affinityPlan.workersUseSystemScheduling) {
+            selectedAffinityPlan = &affinityPlan;
+        }
     }
 
     int* outputSerial = new int[width * height];
     int* outputThread = new int[width * height];
+
+    ThreadAffinityState serialAffinityState;
+    if (simulateMyth4) {
+        std::string affinityError;
+        if (!bindCurrentThread(
+                affinityPlan.logicalProcessors.front(),
+                serialAffinityState,
+                affinityError)) {
+            fprintf(stderr, "Unable to pin serial reference to a P-core: %s\n",
+                    affinityError.c_str());
+            delete[] outputSerial;
+            delete[] outputThread;
+            return 1;
+        }
+    }
 
     double minSerial = 1e30;
     for (int i = 0; i < 5; ++i) {
@@ -187,6 +252,18 @@ int main(int argc, char** argv) {
             outputSerial);
         const double endTime = CycleTimer::currentSeconds();
         minSerial = std::min(minSerial, endTime - startTime);
+    }
+
+    if (simulateMyth4) {
+        std::string affinityError;
+        if (!restoreCurrentThreadAffinity(
+                serialAffinityState, affinityError)) {
+            fprintf(stderr, "Unable to restore serial thread affinity: %s\n",
+                    affinityError.c_str());
+            delete[] outputSerial;
+            delete[] outputThread;
+            return 1;
+        }
     }
 
     printf("[mandelbrot serial]:\t\t[%.3f] ms\n", minSerial * 1000);
@@ -238,5 +315,14 @@ int main(int argc, char** argv) {
 
     delete[] outputSerial;
     delete[] outputThread;
+
+    if (simulateMyth4) {
+        std::string affinityError;
+        if (!processCpuSetRestriction.restore(affinityError)) {
+            fprintf(stderr, "Unable to restore process CPU Sets: %s\n",
+                    affinityError.c_str());
+            return 1;
+        }
+    }
     return 0;
 }
