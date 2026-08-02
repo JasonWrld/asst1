@@ -204,6 +204,8 @@ def run_case(executable: Path, threads: int, raw_dir: Path) -> CaseResult:
         "-t",
         str(threads),
         "--simulate-myth4",
+        "--decomposition",
+        "block",
         "--profile-workers",
         "-v",
         "1",
@@ -302,8 +304,8 @@ def write_markdown(results: Iterable[CaseResult], destination: Path) -> None:
     lines = [
         "# Program 1 Task 3 Results",
         "",
-        "View 1, native Windows Release build, `--simulate-myth4` and "
-        "`--profile-workers`.",
+        "View 1, native Windows Release build, `--simulate-myth4`, "
+        "`--decomposition block`, and `--profile-workers`.",
         "Worker timings come from the same fastest threaded trial used for the "
         "reported speedup.",
         "",

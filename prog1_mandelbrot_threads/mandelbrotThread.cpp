@@ -5,16 +5,18 @@
 
 #include "CycleTimer.h"
 #include "ThreadAffinity.h"
+#include "mandelbrotThread.h"
 
 typedef struct {
     float x0, x1;
     float y0, y1;
-    unsigned int width;
-    unsigned int height;
+    int width;
+    int height;
     int maxIterations;
     int* output;
     int threadId;
     int numThreads;
+    RowDecomposition decomposition;
     double* elapsedSeconds;
     const ThreadAffinityTarget* affinityTarget;
     std::string* affinityError;
@@ -45,18 +47,33 @@ void workerThreadStart(WorkerArgs * const args) {
         ? 0.0
         : CycleTimer::currentSeconds();
 
-    const int rowsPerThread = args->height / args->numThreads;
-    const int startRow = args->threadId * rowsPerThread;
-    const int numRows = (args->threadId == args->numThreads - 1)
-        ? args->height - startRow
-        : rowsPerThread;
+    if (args->decomposition == RowDecomposition::Block) {
+        const int rowsPerThread = args->height / args->numThreads;
+        const int startRow = args->threadId * rowsPerThread;
+        const int numRows = (args->threadId == args->numThreads - 1)
+            ? args->height - startRow
+            : rowsPerThread;
 
-    mandelbrotSerial(
-        args->x0, args->y0, args->x1, args->y1,
-        args->width, args->height,
-        startRow, numRows,
-        args->maxIterations,
-        args->output);
+        mandelbrotSerial(
+            args->x0, args->y0, args->x1, args->y1,
+            args->width, args->height,
+            startRow, numRows,
+            args->maxIterations,
+            args->output);
+    } else {
+        // Static cyclic assignment: every worker samples the full image
+        // vertically, which spreads expensive Mandelbrot regions without
+        // requiring any synchronization between workers.
+        for (int row = args->threadId; row < args->height;
+             row += args->numThreads) {
+            mandelbrotSerial(
+                args->x0, args->y0, args->x1, args->y1,
+                args->width, args->height,
+                row, 1,
+                args->maxIterations,
+                args->output);
+        }
+    }
 
     if (args->elapsedSeconds != nullptr) {
         *args->elapsedSeconds = CycleTimer::currentSeconds() - startTime;
@@ -79,7 +96,9 @@ bool mandelbrotThread(
     int numThreads,
     float x0, float y0, float x1, float y1,
     int width, int height,
-    int maxIterations, int output[], double workerElapsedSeconds[],
+    int maxIterations, int output[],
+    RowDecomposition decomposition,
+    double workerElapsedSeconds[],
     const ThreadAffinityPlan* affinityPlan,
     std::string& error)
 {
@@ -116,6 +135,7 @@ bool mandelbrotThread(
         args[i].height = height;
         args[i].maxIterations = maxIterations;
         args[i].numThreads = numThreads;
+        args[i].decomposition = decomposition;
         args[i].output = output;
       
         args[i].threadId = i;

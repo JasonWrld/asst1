@@ -12,7 +12,8 @@ The numeric measurements are available in [results.md](results.md) and
 
 I kept the required static block decomposition: with `N` threads, each worker
 receives one contiguous block of image rows, and the last worker receives any
-remainder. I rendered View 1 with 2, 3, 4, 5, 6, 7, and 8 threads.
+remainder. The benchmark script requests this historical policy explicitly with
+`--decomposition block`. I rendered View 1 with 2, 3, 4, 5, 6, 7, and 8 threads.
 
 The experiment used a native Windows Release build on an Intel Core i5-13500HX.
 This is a 6P+8E host, so I ran the program with `--simulate-myth4`. That mode
@@ -60,7 +61,7 @@ from a topology simulation on the i5-13500HX, not measurements from a Stanford
 ### 实验方法
 
 本实验保留题目要求的静态连续块划分：使用 `N` 个线程时，每个线程负责一段连续图像行，最后一个线程处理不能整除的余数。测试范围为 View 1 的
-2、3、4、5、6、7 和 8 个线程。
+2、3、4、5、6、7 和 8 个线程。实验脚本显式传入 `--decomposition block`，因此即使最终程序默认使用 Task 4 的交错策略，旧实验仍可复现。
 
 实验在 Intel Core i5-13500HX 上使用原生 Windows Release 版本完成。宿主处理器是
 6P+8E，因此程序通过 `--simulate-myth4` 将运行范围限制为 4 个物理 P 核及其

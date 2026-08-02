@@ -10,6 +10,7 @@
 
 #include "CycleTimer.h"
 #include "ThreadAffinity.h"
+#include "mandelbrotThread.h"
 
 extern void mandelbrotSerial(
     float x0, float y0, float x1, float y1,
@@ -17,14 +18,6 @@ extern void mandelbrotSerial(
     int startRow, int numRows,
     int maxIterations,
     int output[]);
-
-extern bool mandelbrotThread(
-    int numThreads,
-    float x0, float y0, float x1, float y1,
-    int width, int height,
-    int maxIterations, int output[], double workerElapsedSeconds[],
-    const ThreadAffinityPlan* affinityPlan,
-    std::string& error);
 
 extern void writePPMImage(
     int* data,
@@ -53,6 +46,7 @@ void usage(const char* progname) {
     printf("  -v  --view <INT>   Use specified view settings\n");
     printf("      --pin-p-cores  Pin each worker to a distinct Windows P-core\n");
     printf("      --simulate-myth4  Restrict execution to 4 Windows P-cores/8 SMT contexts\n");
+    printf("      --decomposition <MODE>  Row assignment: block or interleaved (default)\n");
     printf("      --profile-workers  Report per-worker compute time from the fastest trial\n");
     printf("  -?  --help         This message\n");
 }
@@ -119,6 +113,7 @@ int main(int argc, char** argv) {
     bool pinPerformanceCores = false;
     bool simulateMyth4 = false;
     bool profileWorkers = false;
+    RowDecomposition decomposition = RowDecomposition::Interleaved;
 
     float x0 = -2;
     float x1 = 1;
@@ -139,6 +134,34 @@ int main(int argc, char** argv) {
             simulateMyth4 = true;
         } else if (argument == "--profile-workers") {
             profileWorkers = true;
+        } else if (argument == "--decomposition") {
+            if (++i >= argc) {
+                fprintf(stderr, "Missing value for %s\n", argument.c_str());
+                return 1;
+            }
+            value = argv[i];
+            if (value == "block") {
+                decomposition = RowDecomposition::Block;
+            } else if (value == "interleaved") {
+                decomposition = RowDecomposition::Interleaved;
+            } else {
+                fprintf(stderr,
+                        "Invalid decomposition: %s (expected block or interleaved)\n",
+                        value.c_str());
+                return 1;
+            }
+        } else if (argument.rfind("--decomposition=", 0) == 0) {
+            value = argument.substr(std::strlen("--decomposition="));
+            if (value == "block") {
+                decomposition = RowDecomposition::Block;
+            } else if (value == "interleaved") {
+                decomposition = RowDecomposition::Interleaved;
+            } else {
+                fprintf(stderr,
+                        "Invalid decomposition: %s (expected block or interleaved)\n",
+                        value.c_str());
+                return 1;
+            }
         } else if (argument == "-t" || argument == "--threads") {
             if (++i >= argc) {
                 fprintf(stderr, "Missing value for %s\n", argument.c_str());
@@ -193,6 +216,11 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Invalid view index: %d\n", viewIndex);
         return 1;
     }
+
+    printf("[row decomposition]:\t\t[%s]\n",
+           decomposition == RowDecomposition::Block
+               ? "block"
+               : "interleaved");
 
     ThreadAffinityPlan affinityPlan;
     const ThreadAffinityPlan* selectedAffinityPlan = nullptr;
@@ -291,6 +319,7 @@ int main(int argc, char** argv) {
                 width, height,
                 maxIterations,
                 outputThread,
+                decomposition,
                 profileWorkers ? trialWorkerTimes.data() : nullptr,
                 selectedAffinityPlan,
                 threadError)) {
@@ -329,17 +358,32 @@ int main(int argc, char** argv) {
 
     if (profileWorkers) {
         printf("[worker timing trial]:\t\t[%.3f] ms\n", minThread * 1000);
-        const int rowsPerThread = static_cast<int>(height) / numThreads;
-        for (int worker = 0; worker < numThreads; ++worker) {
-            const int startRow = worker * rowsPerThread;
-            const int numRows = worker == numThreads - 1
-                ? static_cast<int>(height) - startRow
-                : rowsPerThread;
-            printf("[worker %d]: rows [%d, %d), [%.3f] ms\n",
-                   worker,
-                   startRow,
-                   startRow + numRows,
-                   bestWorkerTimes[static_cast<std::size_t>(worker)] * 1000);
+        if (decomposition == RowDecomposition::Block) {
+            const int rowsPerThread = static_cast<int>(height) / numThreads;
+            for (int worker = 0; worker < numThreads; ++worker) {
+                const int startRow = worker * rowsPerThread;
+                const int numRows = worker == numThreads - 1
+                    ? static_cast<int>(height) - startRow
+                    : rowsPerThread;
+                printf("[worker %d]: rows [%d, %d), [%.3f] ms\n",
+                       worker,
+                       startRow,
+                       startRow + numRows,
+                       bestWorkerTimes[static_cast<std::size_t>(worker)] * 1000);
+            }
+        } else {
+            for (int worker = 0; worker < numThreads; ++worker) {
+                const int rowCount = worker < static_cast<int>(height)
+                    ? 1 + (static_cast<int>(height) - 1 - worker) / numThreads
+                    : 0;
+                printf("[worker %d]: interleaved rows start %d, stride %d, "
+                       "count %d, [%.3f] ms\n",
+                       worker,
+                       worker,
+                       numThreads,
+                       rowCount,
+                       bestWorkerTimes[static_cast<std::size_t>(worker)] * 1000);
+            }
         }
     }
 

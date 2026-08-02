@@ -8,6 +8,7 @@ add_executable(mandelbrot
     main.cpp
     mandelbrotSerial.cpp
     mandelbrotThread.cpp
+    mandelbrotThread.h
     ThreadAffinity.cpp
     ../common/ppm.cpp)
 

@@ -12,7 +12,8 @@ are in [results.md](results.md). Complete program output is preserved in
 ### Method
 
 I added an optional `--profile-workers` mode without changing the contiguous
-row-block decomposition from Task 2. Each worker starts its timer after its CPU
+row-block decomposition from Task 2. The benchmark requests that historical
+policy explicitly with `--decomposition block`. Each worker starts its timer after its CPU
 affinity has been applied and stops it immediately after its Mandelbrot block
 has been computed. Therefore, the worker values measure row partitioning and
 pixel computation, but exclude thread creation, `join()`, affinity setup and
@@ -70,7 +71,8 @@ submission.
 
 ### 实验方法
 
-程序新增了可选的 `--profile-workers` 模式，但没有改变 Task 2 的连续行块划分。每个
+程序新增了可选的 `--profile-workers` 模式，并通过 `--decomposition block` 显式保留
+Task 2 的连续行块划分。每个
 worker 在完成 CPU 亲和性绑定后开始计时，在 Mandelbrot 行块计算结束后立即停止计时。因此这些数值包含行划分和像素计算，不包含线程创建、`join()`、亲和性设置与恢复、图像写出或打印。
 
 程序仍运行五次 threaded trial，并保留总 threaded 时间最短的那次执行所对应的完整

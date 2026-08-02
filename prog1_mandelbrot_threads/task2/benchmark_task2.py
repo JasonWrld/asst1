@@ -159,6 +159,8 @@ def run_case(executable: Path, threads: int, raw_dir: Path) -> Result:
         "-t",
         str(threads),
         "--simulate-myth4",
+        "--decomposition",
+        "block",
         "-v",
         "1",
     ]
@@ -205,7 +207,8 @@ def write_markdown(results: Iterable[Result], destination: Path) -> None:
     lines = [
         "# Program 1 Task 2 Results",
         "",
-        "View 1, native Windows Release build, `--simulate-myth4`.",
+        "View 1, native Windows Release build, `--simulate-myth4` and "
+        "`--decomposition block`.",
         "Each executable invocation reports the minimum of five internal trials.",
         "",
         "| Threads | Serial (ms) | Threaded (ms) | Speedup |",

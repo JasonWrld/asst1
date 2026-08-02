@@ -1,6 +1,6 @@
 # Program 1 Task 2 Results
 
-View 1, native Windows Release build, `--simulate-myth4`.
+View 1, native Windows Release build, `--simulate-myth4` and `--decomposition block`.
 Each executable invocation reports the minimum of five internal trials.
 
 | Threads | Serial (ms) | Threaded (ms) | Speedup |

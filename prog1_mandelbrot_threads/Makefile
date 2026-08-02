@@ -33,3 +33,4 @@ $(OBJDIR)/%.o: $(COMMONDIR)/%.cpp
 
 $(OBJDIR)/main.o: $(COMMONDIR)/CycleTimer.h
 $(OBJDIR)/main.o $(OBJDIR)/mandelbrotThread.o $(OBJDIR)/ThreadAffinity.o: ThreadAffinity.h
+$(OBJDIR)/main.o $(OBJDIR)/mandelbrotThread.o: mandelbrotThread.h
