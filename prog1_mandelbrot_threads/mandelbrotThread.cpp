@@ -15,6 +15,7 @@ typedef struct {
     int* output;
     int threadId;
     int numThreads;
+    double* elapsedSeconds;
     const ThreadAffinityTarget* affinityTarget;
     std::string* affinityError;
 } WorkerArgs;
@@ -40,6 +41,10 @@ void workerThreadStart(WorkerArgs * const args) {
         return;
     }
 
+    const double startTime = args->elapsedSeconds == nullptr
+        ? 0.0
+        : CycleTimer::currentSeconds();
+
     const int rowsPerThread = args->height / args->numThreads;
     const int startRow = args->threadId * rowsPerThread;
     const int numRows = (args->threadId == args->numThreads - 1)
@@ -52,6 +57,10 @@ void workerThreadStart(WorkerArgs * const args) {
         startRow, numRows,
         args->maxIterations,
         args->output);
+
+    if (args->elapsedSeconds != nullptr) {
+        *args->elapsedSeconds = CycleTimer::currentSeconds() - startTime;
+    }
 
     if (args->affinityTarget != nullptr) {
         std::string restoreError;
@@ -70,7 +79,7 @@ bool mandelbrotThread(
     int numThreads,
     float x0, float y0, float x1, float y1,
     int width, int height,
-    int maxIterations, int output[],
+    int maxIterations, int output[], double workerElapsedSeconds[],
     const ThreadAffinityPlan* affinityPlan,
     std::string& error)
 {
@@ -110,6 +119,12 @@ bool mandelbrotThread(
         args[i].output = output;
       
         args[i].threadId = i;
+        args[i].elapsedSeconds = workerElapsedSeconds == nullptr
+            ? nullptr
+            : &workerElapsedSeconds[i];
+        if (args[i].elapsedSeconds != nullptr) {
+            *args[i].elapsedSeconds = 0.0;
+        }
         args[i].affinityTarget = affinityPlan == nullptr
             ? nullptr
             : &affinityPlan->targets[static_cast<std::size_t>(i)];

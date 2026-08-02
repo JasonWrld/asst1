@@ -100,3 +100,9 @@ py task2\benchmark_task2.py `
 
 The script updates each raw log as its case runs, then replaces `results.csv`,
 `results.md`, and `speedup_view1.svg` after all seven cases pass validation.
+
+## Task 3 follow-up / Task 3 后续验证
+
+The per-worker measurements that test this load-imbalance hypothesis are in the
+[Task 3 report](../task3/README.md). 验证该负载不均衡假设的逐线程测量见
+[Task 3 报告](../task3/README.md)。

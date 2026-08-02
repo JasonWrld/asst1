@@ -22,7 +22,7 @@ extern bool mandelbrotThread(
     int numThreads,
     float x0, float y0, float x1, float y1,
     int width, int height,
-    int maxIterations, int output[],
+    int maxIterations, int output[], double workerElapsedSeconds[],
     const ThreadAffinityPlan* affinityPlan,
     std::string& error);
 
@@ -53,6 +53,7 @@ void usage(const char* progname) {
     printf("  -v  --view <INT>   Use specified view settings\n");
     printf("      --pin-p-cores  Pin each worker to a distinct Windows P-core\n");
     printf("      --simulate-myth4  Restrict execution to 4 Windows P-cores/8 SMT contexts\n");
+    printf("      --profile-workers  Report per-worker compute time from the fastest trial\n");
     printf("  -?  --help         This message\n");
 }
 
@@ -117,6 +118,7 @@ int main(int argc, char** argv) {
     int viewIndex = 1;
     bool pinPerformanceCores = false;
     bool simulateMyth4 = false;
+    bool profileWorkers = false;
 
     float x0 = -2;
     float x1 = 1;
@@ -135,6 +137,8 @@ int main(int argc, char** argv) {
             pinPerformanceCores = true;
         } else if (argument == "--simulate-myth4") {
             simulateMyth4 = true;
+        } else if (argument == "--profile-workers") {
+            profileWorkers = true;
         } else if (argument == "-t" || argument == "--threads") {
             if (++i >= argc) {
                 fprintf(stderr, "Missing value for %s\n", argument.c_str());
@@ -274,8 +278,11 @@ int main(int argc, char** argv) {
         maxIterations);
 
     double minThread = 1e30;
+    std::vector<double> bestWorkerTimes;
     for (int i = 0; i < 5; ++i) {
         memset(outputThread, 0, width * height * sizeof(int));
+        std::vector<double> trialWorkerTimes(
+            profileWorkers ? static_cast<std::size_t>(numThreads) : 0U);
         const double startTime = CycleTimer::currentSeconds();
         std::string threadError;
         if (!mandelbrotThread(
@@ -284,6 +291,7 @@ int main(int argc, char** argv) {
                 width, height,
                 maxIterations,
                 outputThread,
+                profileWorkers ? trialWorkerTimes.data() : nullptr,
                 selectedAffinityPlan,
                 threadError)) {
             fprintf(stderr, "Threaded computation failed: %s\n", threadError.c_str());
@@ -292,7 +300,13 @@ int main(int argc, char** argv) {
             return 1;
         }
         const double endTime = CycleTimer::currentSeconds();
-        minThread = std::min(minThread, endTime - startTime);
+        const double elapsed = endTime - startTime;
+        if (elapsed < minThread) {
+            minThread = elapsed;
+            if (profileWorkers) {
+                bestWorkerTimes = trialWorkerTimes;
+            }
+        }
     }
 
     printf("[mandelbrot thread]:\t\t[%.3f] ms\n", minThread * 1000);
@@ -312,6 +326,22 @@ int main(int argc, char** argv) {
     printf("\t\t\t\t(%.2fx speedup from %d threads)\n",
            minSerial / minThread,
            numThreads);
+
+    if (profileWorkers) {
+        printf("[worker timing trial]:\t\t[%.3f] ms\n", minThread * 1000);
+        const int rowsPerThread = static_cast<int>(height) / numThreads;
+        for (int worker = 0; worker < numThreads; ++worker) {
+            const int startRow = worker * rowsPerThread;
+            const int numRows = worker == numThreads - 1
+                ? static_cast<int>(height) - startRow
+                : rowsPerThread;
+            printf("[worker %d]: rows [%d, %d), [%.3f] ms\n",
+                   worker,
+                   startRow,
+                   startRow + numRows,
+                   bestWorkerTimes[static_cast<std::size_t>(worker)] * 1000);
+        }
+    }
 
     delete[] outputSerial;
     delete[] outputThread;

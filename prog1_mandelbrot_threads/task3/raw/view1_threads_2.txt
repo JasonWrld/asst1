@@ -1,0 +1,22 @@
+Detected physical performance cores: 6
+Selected myth4 physical P-cores: 4
+Selected myth4 SMT contexts: 8
+  Context 0 -> CPU Set 256, Group 0, Logical CPU 0, CoreIndex 0, EfficiencyClass 1
+  Context 1 -> CPU Set 258, Group 0, Logical CPU 2, CoreIndex 2, EfficiencyClass 1
+  Context 2 -> CPU Set 260, Group 0, Logical CPU 4, CoreIndex 4, EfficiencyClass 1
+  Context 3 -> CPU Set 262, Group 0, Logical CPU 6, CoreIndex 6, EfficiencyClass 1
+  Context 4 -> CPU Set 257, Group 0, Logical CPU 1, CoreIndex 0, EfficiencyClass 1
+  Context 5 -> CPU Set 259, Group 0, Logical CPU 3, CoreIndex 2, EfficiencyClass 1
+  Context 6 -> CPU Set 261, Group 0, Logical CPU 5, CoreIndex 4, EfficiencyClass 1
+  Context 7 -> CPU Set 263, Group 0, Logical CPU 7, CoreIndex 6, EfficiencyClass 1
+  Serial reference -> CPU Set 256, Group 0, Logical CPU 0, CoreIndex 0
+  Worker 0 -> CPU Set 256, Group 0, Logical CPU 0, CoreIndex 0
+  Worker 1 -> CPU Set 258, Group 0, Logical CPU 2, CoreIndex 2
+[mandelbrot serial]:		[285.076] ms
+Wrote image file mandelbrot-serial.ppm
+[mandelbrot thread]:		[148.660] ms
+Wrote image file mandelbrot-thread.ppm
+				(1.92x speedup from 2 threads)
+[worker timing trial]:		[148.660] ms
+[worker 0]: rows [0, 600), [146.887] ms
+[worker 1]: rows [600, 1200), [148.412] ms
