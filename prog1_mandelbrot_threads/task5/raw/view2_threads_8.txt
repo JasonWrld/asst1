@@ -1,0 +1,35 @@
+[row decomposition]:		[interleaved]
+Detected physical performance cores: 6
+Selected myth4 physical P-cores: 4
+Selected myth4 SMT contexts: 8
+  Context 0 -> CPU Set 256, Group 0, Logical CPU 0, CoreIndex 0, EfficiencyClass 1
+  Context 1 -> CPU Set 258, Group 0, Logical CPU 2, CoreIndex 2, EfficiencyClass 1
+  Context 2 -> CPU Set 260, Group 0, Logical CPU 4, CoreIndex 4, EfficiencyClass 1
+  Context 3 -> CPU Set 262, Group 0, Logical CPU 6, CoreIndex 6, EfficiencyClass 1
+  Context 4 -> CPU Set 257, Group 0, Logical CPU 1, CoreIndex 0, EfficiencyClass 1
+  Context 5 -> CPU Set 259, Group 0, Logical CPU 3, CoreIndex 2, EfficiencyClass 1
+  Context 6 -> CPU Set 261, Group 0, Logical CPU 5, CoreIndex 4, EfficiencyClass 1
+  Context 7 -> CPU Set 263, Group 0, Logical CPU 7, CoreIndex 6, EfficiencyClass 1
+  Serial reference -> CPU Set 256, Group 0, Logical CPU 0, CoreIndex 0
+  Worker 0 -> CPU Set 256, Group 0, Logical CPU 0, CoreIndex 0
+  Worker 1 -> CPU Set 258, Group 0, Logical CPU 2, CoreIndex 2
+  Worker 2 -> CPU Set 260, Group 0, Logical CPU 4, CoreIndex 4
+  Worker 3 -> CPU Set 262, Group 0, Logical CPU 6, CoreIndex 6
+  Worker 4 -> CPU Set 257, Group 0, Logical CPU 1, CoreIndex 0
+  Worker 5 -> CPU Set 259, Group 0, Logical CPU 3, CoreIndex 2
+  Worker 6 -> CPU Set 261, Group 0, Logical CPU 5, CoreIndex 4
+  Worker 7 -> CPU Set 263, Group 0, Logical CPU 7, CoreIndex 6
+[mandelbrot serial]:		[157.145] ms
+Wrote image file mandelbrot-serial.ppm
+[mandelbrot thread]:		[23.846] ms
+Wrote image file mandelbrot-thread.ppm
+				(6.59x speedup from 8 threads)
+[worker timing trial]:		[23.846] ms
+[worker 0]: interleaved rows start 0, stride 8, count 150, [23.396] ms
+[worker 1]: interleaved rows start 1, stride 8, count 150, [23.289] ms
+[worker 2]: interleaved rows start 2, stride 8, count 150, [23.281] ms
+[worker 3]: interleaved rows start 3, stride 8, count 150, [23.285] ms
+[worker 4]: interleaved rows start 4, stride 8, count 150, [23.317] ms
+[worker 5]: interleaved rows start 5, stride 8, count 150, [23.237] ms
+[worker 6]: interleaved rows start 6, stride 8, count 150, [23.173] ms
+[worker 7]: interleaved rows start 7, stride 8, count 150, [23.246] ms

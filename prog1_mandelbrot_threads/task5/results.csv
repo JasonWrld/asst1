@@ -1,0 +1,5 @@
+view,threads,serial_ms,threaded_ms,speedup,min_worker_ms,max_worker_ms,imbalance_ratio,hardware_contexts,worker_mapping
+1,8,303.209,40.551,7.4772,39.710,40.220,1.0128,8,individual
+1,16,282.949,77.209,3.6647,18.613,54.540,2.9302,8,windows_scheduler
+2,8,157.145,23.846,6.5900,23.173,23.396,1.0096,8,individual
+2,16,160.406,42.864,3.7422,15.419,41.692,2.7039,8,windows_scheduler
