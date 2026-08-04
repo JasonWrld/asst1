@@ -1,0 +1,8 @@
+[mandelbrot serial]:		[142.644] ms
+Wrote image file mandelbrot-serial.ppm
+[mandelbrot ispc]:		[39.979] ms
+Wrote image file mandelbrot-ispc.ppm
+[mandelbrot multicore ispc]:	[20.900] ms
+Wrote image file mandelbrot-task-ispc.ppm
+				(3.57x speedup from ISPC)
+				(6.82x speedup from task ISPC)
