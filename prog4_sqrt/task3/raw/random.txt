@@ -1,0 +1,20 @@
+Detected physical performance cores: 6
+Selected myth4 physical P-cores: 4
+Selected myth4 SMT contexts: 8
+  Context 0 -> CPU Set 256, Group 0, Logical CPU 0, CoreIndex 0, EfficiencyClass 1
+  Context 1 -> CPU Set 258, Group 0, Logical CPU 2, CoreIndex 2, EfficiencyClass 1
+  Context 2 -> CPU Set 260, Group 0, Logical CPU 4, CoreIndex 4, EfficiencyClass 1
+  Context 3 -> CPU Set 262, Group 0, Logical CPU 6, CoreIndex 6, EfficiencyClass 1
+  Context 4 -> CPU Set 257, Group 0, Logical CPU 1, CoreIndex 0, EfficiencyClass 1
+  Context 5 -> CPU Set 259, Group 0, Logical CPU 3, CoreIndex 2, EfficiencyClass 1
+  Context 6 -> CPU Set 261, Group 0, Logical CPU 5, CoreIndex 4, EfficiencyClass 1
+  Context 7 -> CPU Set 263, Group 0, Logical CPU 7, CoreIndex 6, EfficiencyClass 1
+  Serial/ISPC reference -> CPU Set 256, Group 0, Logical CPU 0, CoreIndex 0
+  ISPC tasks -> Windows scheduling within the 8 myth4 contexts
+Configured ConCRT concurrency resources: 8
+[input mode]:		[random]
+[sqrt serial]:		[720.994] ms
+[sqrt ispc]:		[182.825] ms
+[sqrt task ispc]:	[47.516] ms
+				(3.94x speedup from ISPC)
+				(15.17x speedup from task ISPC)

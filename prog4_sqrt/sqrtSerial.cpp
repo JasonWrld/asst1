@@ -16,14 +16,13 @@ void sqrtSerial(int N,
         float x = values[i];
         float guess = initialGuess;
 
-        float error = fabs(guess * guess * x - 1.f);
+        float error = fabsf(guess * guess * x - 1.f);
 
         while (error > kThreshold) {
             guess = (3.f * guess - x * guess * guess * guess) * 0.5f;
-            error = fabs(guess * guess * x - 1.f);
+            error = fabsf(guess * guess * x - 1.f);
         }
 
         output[i] = x * guess;
     }
 }
-

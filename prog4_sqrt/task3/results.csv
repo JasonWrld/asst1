@@ -1,0 +1,3 @@
+input_mode,heavy_input_value,light_input_value,heavy_count,light_count,serial_ms,ispc_ms,task_ispc_ms,simd_speedup,multicore_speedup,total_speedup
+random,,,,,720.994,182.825,47.516,3.9436,3.8477,15.1737
+worst,2.99999976,1.0,2500000,17500000,568.940,678.372,165.115,0.8387,4.1085,3.4457
